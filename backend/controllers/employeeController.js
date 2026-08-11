@@ -1,82 +1,36 @@
-// controllers/employeeController.js
-import Employee from "../models/Employee.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+const Employee = require("../models/Employee");
 
-// Login
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await Employee.findOne({ email });
-    if (!user) return res.status(400).json({ error: "User not found" });
+// Get employees with search, filter, pagination
+exports.getEmployees = async (req, res) => {
+  const { search, department, status, page = 1, limit = 5 } = req.query;
+  let query = {};
+  if (search) query.$or = [{ name: new RegExp(search, "i") }, { email: new RegExp(search, "i") }];
+  if (department) query.department = department;
+  if (status) query.status = status;
 
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(400).json({ error: "Invalid credentials" });
+  const employees = await Employee.find(query)
+    .skip((page - 1) * limit)
+    .limit(parseInt(limit));
+  const total = await Employee.countDocuments(query);
 
-    const token = jwt.sign({ id: user._id }, "secretkey", { expiresIn: "1h" });
-    res.json({ token });
-  } catch (err) {
-    res.status(500).json({ error: "Login failed" });
-  }
-};
-
-// Get employees (with search/filter/pagination)
-export const getEmployees = async (req, res) => {
-  try {
-    const { page = 1, limit = 10, search = "", department, status } = req.query;
-
-    const query = {};
-    if (search) {
-      query.$or = [
-        { name: new RegExp(search, "i") },
-        { email: new RegExp(search, "i") }
-      ];
-    }
-    if (department) query.department = department;
-    if (status) query.status = status;
-
-    const employees = await Employee.find(query)
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
-
-    const total = await Employee.countDocuments(query);
-
-    res.json({ employees, total });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch employees" });
-  }
+  res.json({ employees, total });
 };
 
 // Create employee
-export const createEmployee = async (req, res) => {
-  try {
-    const { password, ...rest } = req.body;
-    let hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
-
-    const employee = new Employee({ ...rest, password: hashedPassword });
-    await employee.save();
-    res.status(201).json({ employee });
-  } catch (err) {
-    res.status(400).json({ error: "Failed to create employee" });
-  }
+exports.createEmployee = async (req, res) => {
+  const emp = new Employee(req.body);
+  await emp.save();
+  res.json(emp);
 };
 
 // Update employee
-export const updateEmployee = async (req, res) => {
-  try {
-    const employee = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ employee });
-  } catch (err) {
-    res.status(400).json({ error: "Failed to update employee" });
-  }
+exports.updateEmployee = async (req, res) => {
+  const emp = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(emp);
 };
 
 // Delete employee
-export const deleteEmployee = async (req, res) => {
-  try {
-    await Employee.findByIdAndDelete(req.params.id);
-    res.json({ message: "Employee deleted successfully" });
-  } catch (err) {
-    res.status(400).json({ error: "Failed to delete employee" });
-  }
+exports.deleteEmployee = async (req, res) => {
+  await Employee.findByIdAndDelete(req.params.id);
+  res.json({ message: "Employee deleted" });
 };
