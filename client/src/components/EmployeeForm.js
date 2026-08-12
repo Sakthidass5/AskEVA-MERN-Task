@@ -7,26 +7,17 @@ import { useEffect } from "react";
 export default function EmployeeForm({ open, onClose, editData, onSaved }) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm({ defaultValues: {} });
 
-  // Reset form whenever dialog opens or editData changes
   useEffect(() => {
     if (open) {
       if (editData) {
-        reset(editData);   // Edit mode → fill values
+        reset(editData);   // Edit mode
       } else {
-        reset({            // Add mode → empty fields
-          name: "",
-          email: "",
-          department: "",
-          designation: "",
-          status: "",
-          joiningDate: ""
-        });
+        reset({ name: "", email: "", department: "", designation: "", status: "", joiningDate: "" });
       }
     }
   }, [open, editData, reset]);
 
   const handleClose = () => {
-    // Always reset when close icon clicked
     reset({ name: "", email: "", department: "", designation: "", status: "", joiningDate: "" });
     onClose();
   };
@@ -38,34 +29,24 @@ export default function EmployeeForm({ open, onClose, editData, onSaved }) {
       return;
     }
 
-    let res;
-    if (editData) {
-      res = await axios.put(`http://localhost:5000/api/employees/${editData._id}`, data);
-    } else {
-      res = await axios.post("http://localhost:5000/api/employees", data);
+    try {
+      if (editData) {
+        await axios.put(`http://localhost:5000/api/employees/${editData._id}`, data);
+      } else {
+        await axios.post("http://localhost:5000/api/employees", data);
+      }
+      if (onSaved) onSaved(); 
+      handleClose();
+    } catch (err) {
+      console.error(err);
     }
-
-    if (onSaved) onSaved(res.data.employee);
-    handleClose();
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={(event, reason) => {
-        if (reason !== "backdropClick") {
-          handleClose();
-        }
-      }}
-      disableEscapeKeyDown
-    >
+    <Dialog open={open} onClose={handleClose} disableEscapeKeyDown>
       <DialogTitle>
         {editData ? "Edit Employee" : "Add Employee"}
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={{ position: "absolute", right: 8, top: 8 }}
-        >
+        <IconButton aria-label="close" onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8 }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -99,7 +80,9 @@ export default function EmployeeForm({ open, onClose, editData, onSaved }) {
             {...register("joiningDate", { required: "Joining date is required" })}
             error={!!errors.joiningDate} helperText={errors.joiningDate?.message} />
 
-          <Button type="submit" variant="contained" sx={{ mt: 2 }}>Save</Button>
+          <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+            {editData ? "Update" : "Add"}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

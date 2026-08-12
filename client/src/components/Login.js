@@ -10,7 +10,8 @@ export default function Login() {
   const onSubmit = async (data) => {
     try {
       const res = await axios.post("http://localhost:5000/api/login", data);
-      localStorage.setItem("token", res.data.token);
+      console.log(res,'res')
+      localStorage.setItem("token", res?.data?.token);
       navigate("/dashboard");
     } catch {
       alert("Invalid credentials");
