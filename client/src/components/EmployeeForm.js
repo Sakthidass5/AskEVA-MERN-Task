@@ -10,7 +10,7 @@ export default function EmployeeForm({ open, onClose, editData, onSaved }) {
   useEffect(() => {
     if (open) {
       if (editData) {
-        reset(editData);   // Edit mode
+        reset(editData);  
       } else {
         reset({ name: "", email: "", department: "", designation: "", status: "", joiningDate: "" });
       }

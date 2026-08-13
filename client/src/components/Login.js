@@ -65,7 +65,6 @@ export default function Login() {
           </Button>
         </form>
 
-        {/* Register Link */}
         <Typography variant="body2" align="center" sx={{ mt: 2 }}>
           Don’t have an account? <Link to="/register">Register here</Link>
         </Typography>

@@ -26,18 +26,16 @@ ChartJS.register(
   LineElement
 );
 
-export default function Analytics() {
+export default function Analytics({ reload }) {
   const [data, setData] = useState(null);
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/employees/analytics")
       .then(res => setData(res.data))
       .catch(err => console.error(err));
-  }, []);
-
+  }, [reload]); 
   if (!data) return <p>Loading analytics...</p>;
 
-  // Bar chart for department counts
   const deptData = {
     labels: data.deptCounts.map(d => d._id),
     datasets: [{
@@ -47,7 +45,6 @@ export default function Analytics() {
     }]
   };
 
-  // Line chart for monthly joined employees
   const monthlyData = {
     labels: data.monthlyJoined.map(m => `Month ${m._id}`),
     datasets: [{
@@ -58,7 +55,6 @@ export default function Analytics() {
     }]
   };
 
-  // Pie chart for status distribution
   const statusData = {
     labels: data.statusCounts.map(s => s._id),
     datasets: [{

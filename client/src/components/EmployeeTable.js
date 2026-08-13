@@ -1,10 +1,11 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button, TextField, Select, MenuItem } from "@mui/material";
 import EmployeeForm from "./EmployeeForm";
 
-export default function EmployeeTable() {
+export default function EmployeeTable({ onDataChanged }) {
   const [employees, setEmployees] = useState([]);
   const [openForm, setOpenForm] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -28,7 +29,8 @@ export default function EmployeeTable() {
   const handleDelete = (id) => {
     if (window.confirm("Delete employee?")) {
       axios.delete(`http://localhost:5000/api/employees/${id}`).then(() => {
-        loadEmployees(); 
+        loadEmployees();
+        onDataChanged(); 
       }).catch(err => console.error(err));
     }
   };
@@ -64,7 +66,7 @@ export default function EmployeeTable() {
         </Select>
         <Select value={status} onChange={e => setStatus(e.target.value)} displayEmpty style={{ marginLeft: 8 }}>
           <MenuItem value="">All Status</MenuItem>
-          <MenuItem value="Active">Active</MenuItem>
+          <MenuItem value="active">Active</MenuItem>
           <MenuItem value="notworking">Not Working</MenuItem>
         </Select>
         <Button variant="contained" style={{ marginLeft: 8 }} onClick={() => { setEditData(null); setOpenForm(true); }}>
@@ -89,7 +91,7 @@ export default function EmployeeTable() {
         open={openForm}
         onClose={() => { setOpenForm(false); setEditData(null); }}
         editData={editData}
-        onSaved={loadEmployees}   
+        onSaved={() => { loadEmployees(); onDataChanged(); }} 
       />
     </>
   );
