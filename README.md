@@ -4,16 +4,31 @@ Employee Management Dashboard built using MERN stack.
 
 ---
 
+
+repo URL:
+
+https://github.com/Sakthidass5/AskEVA-MERN-Task/tree/Sakthidass5
+  
 ##  Setup Instructions
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Sakthidass5/AskEVA-MERN-Task.git
+git clone -b Sakthidass5 https://github.com/Sakthidass5/AskEVA-MERN-Task.git
 cd AskEVA-MERN-Task
+
+
+frontend:
+
+cd client 
+
+ npm i
+
+Run client: 
+npm start
+
 
 Backend:
 cd backend
-if neeeded use - npm i
 
 .env File set up (create root folder like server.js)
 MONGO_URI=mongodb+srv://reachtosakthidass_db_user:0AeMnbHa0nUSu2jz@cluster0.eruuzqn.mongodb.net/employees?retryWrites=true&w=majority
@@ -23,12 +38,6 @@ JWT_SECRET=secretkey
 Run server:
 npm run dev
 
-frontend:
-cd client
-if neeeded use - npm i
-
-Run client: 
-npm start
 
 
 📦 Features
